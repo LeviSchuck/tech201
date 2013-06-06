@@ -180,9 +180,9 @@ $ () ->
 
 	world = new b2World new b2Vec2(0,10), true
 	fixDef = new b2FixtureDef
-	fixDef.density = 4.0;
-	fixDef.friction = 0.5;
-	fixDef.restitution = 0.2;
+	fixDef.density = 20.0;
+	fixDef.friction = 0.3;
+	fixDef.restitution = 0.3;
 	#Create Ground
 	bodyDef = new b2BodyDef
 	bodyDef.type = b2Body.b2_staticBody
@@ -216,6 +216,7 @@ $ () ->
 	#Make the archer
 	fixDef.shape = new b2PolygonShape
 	fixDef.shape.SetAsBox 1, 1
+	fixDef.friction = 30;
 	bodyDef.position.x = 18
 	bodyDef.position.y = -1
 	body = world.CreateBody bodyDef
