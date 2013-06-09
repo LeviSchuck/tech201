@@ -3,9 +3,21 @@ bodies = []
 archer = null
 cannonSound = new Howl
 	urls: ["cannon.mp3"]
+arrowLaunch = new Howl
+	urls: ["archer-shoot.mp3"]
+explosion = new Howl
+	urls: ["explosion.mp3"]
+arrowLand = [
+	new Howl
+		urls: ["archer-hit1.mp3"]
+	, new Howl
+		urls: ["archer-hit2.mp3"]
+	]
+
 cannon = null
 balls = []
 scale = 28
+inter = 1 / if $.os.tablet or $.os.phone then 30 else 60
 
 
 b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -24,25 +36,36 @@ b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
 class Cannon
 	constructor: () ->
 		@image = document.getElementById "cannon" 
-	draw: () ->
+		@image2 = document.getElementById "cannon2"
+	draw: (badness) ->
 		context = myworld.getContext()
 		rot = 0
 		pos = myworld.getMousePos()
 		x = pos.x
 		y = pos.y
-		y = context.canvas.height - y
+		y = 600 - y
 
 		hype = Math.sqrt(x*x + y*y)
 
 
 		rot = Math.asin(y/hype)
-		myworld.startRotated @image.width/16, context.canvas.height-@image.height/2, -rot
+		myworld.startRotated @image.width/16, 400-@image.height/2, -rot
+		context.globalAlpha = if badness > 0.8 then 0 else 1
 		context.drawImage @image, 0, -@image.height/2
+		context.globalAlpha = Math.min(badness,1)
+		context.drawImage @image2, 0, -@image2.height/2
 		myworld.endRotated()
 
 
 class MyWorld
 	constructor: (@bodies, @archer) ->
+		@badness = 0
+		@indeedWin = false
+		@exploded = false
+		@loseamt = 0
+		@level = 1
+		if window.location.search.length > 1
+			@level = parseInt window.location.search.substring(1)
 		@canvas = document.getElementById "gamecanvas"
 		canvas = @canvas
 		@game = @canvas.getContext "2d"
@@ -53,7 +76,6 @@ class MyWorld
 		@mouse = 
 			x: 0
 			y: 0
-		console.log @mouse
 		game  = @game
 		that = this
 		canvas = @canvas
@@ -69,43 +91,27 @@ class MyWorld
 			return
 		), false
 		@canvas.addEventListener "click", ((evt) ->
-			cannonSound.play()
-			pos = myworld.getMousePos()
-			x = pos.x
-			y = pos.y
-			y = canvas.height - y
-			hype = Math.sqrt(x*x + y*y)
-			console.log "clicked"
-			bodyDef = new b2BodyDef
-			bodyDef.type = b2Body.b2_dynamicBody
-			bodyDef.position.x = (x/hype)*(128/28)
-			bodyDef.position.y = 400 / 30 - (y/hype)*(128/28)
-			fixDef = new b2FixtureDef
-			fixDef.density = 30.0
-			fixDef.friction = 0.5
-			fixDef.restitution = 0.2
-			fixDef.shape = new b2CircleShape 1/3
-			ball = world.CreateBody bodyDef
-			ball.CreateFixture fixDef
-			that.balls.push ball
-			
-			magnitude = 6 + Math.random()
-			vec = new b2Vec2 fixDef.density*(x/hype)*magnitude,-fixDef.density*(y/hype)*magnitude
-			ball.ApplyImpulse vec, ball.GetPosition()
+			myworld.shoot()
 
 		), false
+		setInterval () -> 
+			myworld.makeArrow()
+		, 1800
+		setInterval () ->
+			myworld.didWin()
+		, 1000
 
 
 	draw: () ->
-
+		@badness /= 1.005 if @badness > 0.1 and @badness < 1
 		@drawBackground()
 
 		@drawBall ball for ball in @balls
 		@drawWall wall for wall in @bodies
-		@drawArcher()
+		@drawLose()
 		@drawArrow arrow for arrow in @arrows
-
-		@cannon.draw()
+		@drawArcher()
+		@cannon.draw @badness
 
 	drawBall: (ball) ->
 		pos = @getPosition ball
@@ -145,6 +151,11 @@ class MyWorld
 		@endRotated()
 
 	drawArrow: (arrow) ->
+		pos = @getPosition arrow
+		imageObj = document.getElementById "arrow"
+		@startRotated (pos.x) * scale, (pos.y) * scale, arrow.GetAngle()
+		@game.drawImage imageObj, -(imageObj.width/2), -(imageObj.height/2)
+		@endRotated()
 
 	drawBackground: () ->
 		imageObj = document.getElementById "background" 
@@ -154,6 +165,16 @@ class MyWorld
 		@game.fillStyle = pattern
 		@game.fill()
 
+	drawLose: () ->
+		if @badness < 1 then return
+		@game.save()
+		@game.globalAlpha = Math.min(@loseamt,1)
+		@game.fillStyle = 'black'
+		@game.fillRect(0,0,800,800);
+		@game.restore()
+		@loseamt += inter
+		if @loseamt > 5
+			window.location = "lose.html"
 
 	getPosition: (body) ->
 		body.m_xf.position
@@ -170,8 +191,89 @@ class MyWorld
 		@mouse
 	getContext: () ->
 		@game
+	shoot: () ->
+		if @badness >= 1 then return
+		if @indeedWin then return
+		@badness += 0.15
+		cannonSound.play()
+		pos = @getMousePos()
+		x = pos.x
+		y = pos.y
+		y = @canvas.height - y
+		hype = Math.sqrt(x*x + y*y)
+		bodyDef = new b2BodyDef
+		bodyDef.type = b2Body.b2_dynamicBody
+		bodyDef.position.x = (x/hype)*(128/28)
+		bodyDef.position.y = 450 / 30 - (y/hype)*(128/28)
+		fixDef = new b2FixtureDef
+		fixDef.density = 30.0
+		fixDef.friction = 0.5
+		fixDef.restitution = 0.2
+		fixDef.shape = new b2CircleShape 1/3
+		ball = world.CreateBody bodyDef
+		ball.CreateFixture fixDef
+		@balls.push ball
+		
+		magnitude = 6 + Math.random()
+		vec = new b2Vec2 fixDef.density*(x/hype)*magnitude,-fixDef.density*(y/hype)*magnitude
+		ball.ApplyImpulse vec, ball.GetPosition()
+		if @badness >= 1
+			setTimeout (() ->
+				explosion.play()
+				myworld.exploded = true
+				), 800
 
+	makeArrow: () ->
+		if Math.abs(@archer.GetAngle()) > 0.3 then return
+		if @indeedWin then return
+		arrowLaunch.play()
+		pos = @getPosition @archer
+		bodyDef = new b2BodyDef
+		bodyDef.type = b2Body.b2_dynamicBody
+		bodyDef.position.x = pos.x - 1.5
+		bodyDef.position.y = pos.y
+		fixDef = new b2FixtureDef
+		fixDef.density = 5.0
+		fixDef.friction = 0.75
+		fixDef.restitution = 0.45
+		fixDef.shape = new b2PolygonShape
+		fixDef.shape.SetAsBox 0.25, 0.05
+		arrow = world.CreateBody bodyDef
+		arrow.CreateFixture fixDef
+		@arrows.push arrow
+		magnitude = 0.1 + Math.random()*0.03
+		pos = myworld.getMousePos()
+		x = 200
+		y = 300
+		hype = Math.sqrt(x*x + y*y)
+		vec = new b2Vec2 -fixDef.density*(x/hype)*magnitude,-fixDef.density*(y/hype)*magnitude
+		vec2 = arrow.GetPosition()
+		vec2.x += (Math.random()-0.5)*0.10
+		arrow.ApplyImpulse vec, vec2
 
+		arrow.SetUserData
+			didShoot: false
+			check: setInterval (() ->
+				if Math.abs(arrow.GetAngularVelocity()) < 0.75
+					arrowLand[Math.floor(Math.random()*arrowLand.length)].play()
+					clearInterval arrow.GetUserData().check
+				), 100
+	didWin: () ->
+		if @indeedWin then return
+		offcenter = 0
+		for body in @bodies
+			if Math.abs(body.GetPosition().x - 18) > 1.4
+				offcenter++
+		if offcenter > 3
+			@indeedWin = true
+			setTimeout () ->
+				myworld.nextLevel()
+			, 2000
+	nextLevel: () ->
+		if @level >= 4
+			window.location = "win.html"
+		else
+			window.location = "?"+(@level+1).toString()
 myworld = null
 
 
@@ -180,15 +282,15 @@ $ () ->
 
 	world = new b2World new b2Vec2(0,10), true
 	fixDef = new b2FixtureDef
-	fixDef.density = 20.0;
+	fixDef.density = 16.0;
 	fixDef.friction = 0.3;
-	fixDef.restitution = 0.3;
+	fixDef.restitution = 0.06;
 	#Create Ground
 	bodyDef = new b2BodyDef
 	bodyDef.type = b2Body.b2_staticBody
 	fixDef.shape = new b2PolygonShape
 	fixDef.shape.SetAsBox 20, 2
-	bodyDef.position.Set 24, 400 / 30 + 1.8
+	bodyDef.position.Set 24, 425 / 30 + 1.8
 	world.CreateBody(bodyDef).CreateFixture fixDef
 	
 
@@ -198,7 +300,7 @@ $ () ->
 	top = 0;
 	while i < 6
 		fixDef.shape = new b2PolygonShape
-		height = Math.random() + 0.1
+		height = Math.random()*0.5 + 0.3
 		width = height * 2
 		fixDef.shape.SetAsBox width, height
 		bodyDef.position.x = 18
@@ -216,7 +318,7 @@ $ () ->
 	#Make the archer
 	fixDef.shape = new b2PolygonShape
 	fixDef.shape.SetAsBox 1, 1
-	fixDef.friction = 30;
+	fixDef.friction = 0.6;
 	bodyDef.position.x = 18
 	bodyDef.position.y = -1
 	body = world.CreateBody bodyDef
@@ -224,23 +326,26 @@ $ () ->
 	archer = body
 
 
-	debugDraw = new b2DebugDraw()
-	debugDraw.SetSprite document.getElementById("canvas").getContext("2d")
-	debugDraw.SetDrawScale 28.0
-	debugDraw.SetFillAlpha 0.3
-	debugDraw.SetLineThickness 1.0
-	debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
-	world.SetDebugDraw debugDraw
-	window.setInterval update, 1000 / 60
+	#debugDraw = new b2DebugDraw()
+	#debugDraw.SetSprite document.getElementById("canvas").getContext("2d")
+	#debugDraw.SetDrawScale 28.0
+	#debugDraw.SetFillAlpha 0.3
+	#debugDraw.SetLineThickness 1.0
+	#debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
+	#world.SetDebugDraw debugDraw
+	window.setInterval update, inter * 1000
 
-	canvas = document.getElementById "canvas"
-	canvas.onselectstart = () -> false
+	#canvas = document.getElementById "canvas"
+	#canvas.onselectstart = () -> false
+	canvas = document.getElementById "gamecanvas"
+	canvas.getContext("2d").scale(1024/600, 768/400)
 
 	myworld = new MyWorld bodies, archer
 
 
 update = () ->
-	world.Step 1/60, 10, 10
-	world.DrawDebugData()
+	
+	world.Step inter, 10, 10
+	#world.DrawDebugData()
 	world.ClearForces()
 	myworld.draw()
