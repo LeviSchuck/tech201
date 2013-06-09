@@ -20,18 +20,31 @@ scale = 28
 inter = 1 / if $.os.tablet or $.os.phone then 30 else 60
 
 
-b2Vec2 = Box2D.Common.Math.b2Vec2
-b2AABB = Box2D.Collision.b2AABB
-b2BodyDef = Box2D.Dynamics.b2BodyDef
-b2Body = Box2D.Dynamics.b2Body
-b2FixtureDef = Box2D.Dynamics.b2FixtureDef
-b2Fixture = Box2D.Dynamics.b2Fixture
-b2World = Box2D.Dynamics.b2World
-b2MassData = Box2D.Collision.Shapes.b2MassData
-b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
-b2DebugDraw = Box2D.Dynamics.b2DebugDraw
-b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
+#b2Vec2 = Box2D.Common.Math.b2Vec2
+#b2AABB = Box2D.Collision.b2AABB
+#b2BodyDef = Box2D.Dynamics.b2BodyDef
+#b2Body = Box2D.Dynamics.b2Body
+#b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+#b2Fixture = Box2D.Dynamics.b2Fixture
+#b2World = Box2D.Dynamics.b2World
+#b2MassData = Box2D.Collision.Shapes.b2MassData
+#b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+#b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+#b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+#b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
+
+b2Vec2 = Box2D.b2Vec2
+b2AABB = Box2D.b2AABB
+b2BodyDef = Box2D.b2BodyDef
+b2Body = Box2D.b2Body
+b2FixtureDef = Box2D.b2FixtureDef
+b2Fixture = Box2D.b2Fixture
+b2World = Box2D.b2World
+b2MassData = Box2D.b2MassData
+b2PolygonShape = Box2D.b2PolygonShape
+b2CircleShape = Box2D.b2CircleShape
+b2DebugDraw = Box2D.b2DebugDraw
+b2MouseJointDef =  Box2D.b2MouseJointDef
 
 class Cannon
 	constructor: () ->
@@ -205,9 +218,11 @@ class MyWorld
 		y = @canvas.height - y
 		hype = Math.sqrt(x*x + y*y)
 		bodyDef = new b2BodyDef
-		bodyDef.type = b2Body.b2_dynamicBody
-		bodyDef.position.x = (x/hype)*(128/24)
-		bodyDef.position.y = 450 / 30 - (y/hype)*(128/24)
+		bodyDef.set_type Box2D.b2_dynamicBody
+		x = (x/hype)*(128/24)
+		y = 450 / 30 - (y/hype)*(128/24)
+		vec = new b2Vec2 x, y 
+		bodyDef.set_position vec
 		fixDef = new b2FixtureDef
 		fixDef.density = 30.0
 		fixDef.friction = 0.5
@@ -291,15 +306,15 @@ $ () ->
 	fixDef.restitution = 0.06;
 	#Create Ground
 	bodyDef = new b2BodyDef
-	bodyDef.type = b2Body.b2_staticBody
+	bodyDef.set_type Box2D.b2_staticBody
 	fixDef.shape = new b2PolygonShape
 	fixDef.shape.SetAsBox 20, 2
-	bodyDef.position.Set 24, 425 / 30 + 1.8
+	bodyDef.set_position new b2Vec2(24, 425 / 30 + 1.8)
 	world.CreateBody(bodyDef).CreateFixture fixDef
 	
 
 	# Create some objects
-	bodyDef.type = b2Body.b2_dynamicBody
+	bodyDef.set_type Box2D.b2_dynamicBody
 	i = 0
 	top = 0;
 	while i < 6
@@ -307,8 +322,7 @@ $ () ->
 		height = Math.random()*0.5 + 0.3
 		width = height * 2
 		fixDef.shape.SetAsBox width, height
-		bodyDef.position.x = 18
-		bodyDef.position.y = top
+		bodyDef.set_position new b2Vec2(18, top)
 		top += height*2
 		body = world.CreateBody bodyDef
 		body.CreateFixture fixDef
