@@ -62,6 +62,7 @@ class MyWorld
 		@badness = 0
 		@indeedWin = false
 		@exploded = false
+		@lost = 0
 		@loseamt = 0
 		@level = 1
 		if window.location.search.length > 1
@@ -173,7 +174,9 @@ class MyWorld
 		@game.fillRect(0,0,800,800);
 		@game.restore()
 		@loseamt += inter
-		if @loseamt > 5
+		@lost = 2 if @lost < 2
+		if @loseamt > 5 and @lost < 3
+			@lost = 3
 			window.location = "lose.html"
 
 	getPosition: (body) ->
@@ -197,14 +200,14 @@ class MyWorld
 		@badness += 0.15
 		cannonSound.play()
 		pos = @getMousePos()
-		x = pos.x
+		x = pos.x + 15
 		y = pos.y
 		y = @canvas.height - y
 		hype = Math.sqrt(x*x + y*y)
 		bodyDef = new b2BodyDef
 		bodyDef.type = b2Body.b2_dynamicBody
-		bodyDef.position.x = (x/hype)*(128/28)
-		bodyDef.position.y = 450 / 30 - (y/hype)*(128/28)
+		bodyDef.position.x = (x/hype)*(128/24)
+		bodyDef.position.y = 450 / 30 - (y/hype)*(128/24)
 		fixDef = new b2FixtureDef
 		fixDef.density = 30.0
 		fixDef.friction = 0.5
@@ -260,6 +263,7 @@ class MyWorld
 				), 100
 	didWin: () ->
 		if @indeedWin then return
+		if @lost > 1 then return
 		offcenter = 0
 		for body in @bodies
 			if Math.abs(body.GetPosition().x - 18) > 1.4
