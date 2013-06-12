@@ -1,0 +1,63 @@
+<html>
+<head>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+	<script src="http://cdn.jsdelivr.net/howler.js/1.0.7/howler.min.js"></script>
+	<link href="http://cdn.jsdelivr.net/foundation/4.1.6/css/foundation.css" rel="stylesheet" media="screen" />
+<style>
+body {
+	background-image: url(background2.png);
+}
+</style>
+<script>
+music = new Howl({urls:["title.mp3","title.ogg"], loop: true});
+music.play();
+	</script>
+</head>
+<body>
+	<div class="row">
+	<div class="large-12 small-centered columns" style="text-align: center;">
+	<h1>Angry O' Turks Credits</h1>
+	</div>
+	</div>
+	<div class="row">
+		<div class="large-4 columns">
+			<h2>Images</h2>
+			<ul>
+				<li>Cannon: Aramande</li>
+				<li>Cannon Ball: Aramande</li>
+				<li>Arrow: Dome / Chance</li>
+				<li>Archer: <a href="http://opengameart.org">opengameart.org</a></li>
+				<li>Stone Wall: <a href="http://opengameart.org">opengameart.org</a></li>
+				<li>Background: <a href="http://opengameart.org">opengameart.org</a></li>
+			</ul>
+		</div>
+		<div class="large-4 columns">
+			<h2>Sounds</h2>
+			<ul>
+				<li>Cannon shot: <a href="http://freesound.org/">freesound.org</a></li>
+				<li>Explosion: <a href="http://freesound.org/">freesound.org</a></li>
+				<li>Lose / Win Jingles: Chakib Mouzaoui</li>
+				<li>Title Music: Chakib Mouzaoui</li>
+			</ul>
+		</div>
+		<div class="large-4 columns">
+			<h2>Game</h2>
+			<ul>
+				<li>Coded by Levi Schuck</li>
+				<li>Utilizes <a href="http://box2d.org/">Box2D Physics</a> <i>which is also used in Angry Birds.</i></li>
+				<li><a href="https://github.com/goldfire/howler.js/">Howler.js</a> for playing sounds in the browser.</li>
+			</ul>
+		</div>
+	</div>
+	<div class="row" style="padding-top: 1em;">
+		<div class="large-6 columns">
+			<a class="button" href="index.html">Title Screen</a>
+		</div>
+		<div class="large-2 columns large-offset-4" style="text-align: right;">
+			<a class="button" href="game.html">Play</a>
+		</div>
+	</div>
+
+</body>
+</html>

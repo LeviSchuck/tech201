@@ -3,21 +3,48 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 	<script src="http://cdn.jsdelivr.net/howler.js/1.0.7/howler.min.js"></script>
+	<link href="http://cdn.jsdelivr.net/foundation/4.1.6/css/foundation.css" rel="stylesheet" media="screen" />
+<style>
+body {
+	background-image: url(background2.png);
+}
+</style>
+<script>
+music = new Howl({urls:["title.mp3","title.ogg"], loop: true});
+music.play();
+	</script>
 </head>
 <body>
-	<!--<canvas id="canvas" width="600" height="400" style="background-color:#333333;" ></canvas>-->
-	<canvas id="gamecanvas" width="1024" height="768" style="background-color:#333333;" ></canvas>
-	
-<script type="text/javascript" src="Box2dWeb-2.1.a.3.min.js"></script>
-<script type="text/javascript" src="assets/js/_main.js"></script>
-<div style="display: none">
-	<img src="archer-light.png" id="archer" />
-	<img src="cannon.png" id="cannon" />
-	<img src="cannon-dead.png" id="cannon2" />
-	<img src="background.png" id="background" />
-	<img src="ball.png" id="ball" />
-	<img src="arrow.png" id="arrow" />
-	<img src="wall.jpg" id="wall" />
-</div>
+	<div class="row">
+	<div class="large-12 small-centered columns" style="text-align: center;">
+	<h1>Angry O' Turks</h1>
+	</div>
+	</div>
+	<div class="row">
+		<div class="large-4 columns">
+			<a class="th" href="game.html"> 
+			<img src="http://puu.sh/3dRAn.png" />
+			</a>
+		</div>
+		<div class="large-8 columns">
+			<h3>Welcome to Angry O' Turks!</h2>
+			<p>It is probably better said as <i>Angry Turks</i>, but here you go!</p>
+			<p>
+				This game models after the Ottoman Turks came with cannons and caused the downfall of Constantinople.
+			</p>
+			<p>
+				This game does not function in Internet Explorer. It is recommended to use Chrome.
+			</p>
+		</div>
+	</div>
+	<div class="row" style="padding-top: 1em;">
+		<div class="large-6 columns">
+			<a class="button" href="credits.html">Credits</a>
+		</div>
+		<div class="large-2 columns large-offset-4" style="text-align: right;">
+			<a class="button" href="game.html">Play</a>
+		</div>
+	</div>
+
 </body>
 </html>

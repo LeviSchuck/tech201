@@ -2,16 +2,16 @@ world = null
 bodies = []
 archer = null
 cannonSound = new Howl
-	urls: ["cannon.mp3"]
+	urls: ["cannon.mp3", "cannon.ogg"]
 arrowLaunch = new Howl
-	urls: ["archer-shoot.mp3"]
+	urls: ["archer-shoot.mp3","archer-shoot.ogg"]
 explosion = new Howl
-	urls: ["explosion.mp3"]
+	urls: ["explosion.mp3", "explosion.ogg"]
 arrowLand = [
 	new Howl
-		urls: ["archer-hit1.mp3"]
+		urls: ["archer-hit1.mp3", "archer-hit1.ogg"]
 	, new Howl
-		urls: ["archer-hit2.mp3"]
+		urls: ["archer-hit2.mp3", "archer-hit2.ogg"]
 	]
 
 cannon = null
